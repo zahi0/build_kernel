@@ -3,10 +3,7 @@ name: build_kernel
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -36,7 +33,7 @@ jobs:
       - name: build kernel
         run: |
           echo "开始编译内核"
-          wget https://raw.githubusercontent.com/zahi/build_kernel/build_tool.sh
+          wget https://raw.githubusercontent.com/zahi/build_kernel/master/build_tool.sh
           chmod +x build_tool.sh
           ./build_tool.sh
       - name : upload 
@@ -45,3 +42,4 @@ jobs:
         with:
           name: kernel
           path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
+
