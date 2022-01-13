@@ -34,7 +34,7 @@ jobs:
       - name: build kernel
         run: |
           echo "开始编译内核"
-          wget https://raw.githubusercontent.com/zahi/build_kernel/master/build_tool.sh
+          wget https://raw.githubusercontent.com/zahi0/build_kernel/main/build_tool.sh
           chmod +x build_tool.sh
           ./build_tool.sh
       - name : upload 
