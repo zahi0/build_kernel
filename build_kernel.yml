@@ -1,0 +1,47 @@
+name: build_kernel
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: set up environment
+        run: |
+          echo "安装依赖"
+          sudo apt update -y
+          sudo apt install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev unzip zipalign language-pack-zh-hans
+      - name: pull kernel and complier
+        run: |
+          echo "拉取源码和编译器"
+          git clone --depth=1 https://github.com/Jasmine-Wayne-4-19/android_kernel_xiaomi_sdm660_4.19.git -b 11
+          mv android_kernel_xiaomi_sdm660_4.19 kernel_src
+          echo "拉取源码完成"
+          mkdir complier
+          cd complier
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang -b master
+          echo "拉取编译器完成"
+          cd ..
+      - name: build kernel
+        run: |
+          echo "开始编译内核"
+          wget https://raw.githubusercontent.com/zahi/build_kernel/build_tool.sh
+          chmod +x build_tool.sh
+          ./build_tool.sh
+      - name : upload 
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: kernel
+          path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
