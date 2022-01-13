@@ -1,17 +1,13 @@
 #!/bin/bash
 
+#Author : zahi0 @ github
+#Date : 20220113
+#Description : 内核编译脚本，这个脚本可以在github action和自己的pc都可以使用
 
-
-
-clang_path="${PWD}/complier/proton-clang/bin"
+clang_path="${PWD}/proton-clang/bin"
 gcc_path="${clang_path}/aarch64-linux-gnu-"
 gcc_32_path="${clang_path}/arm-linux-gnueabi-"
-
-cd kernel_src
-
 date="`date +"%Y%m%d%H%M"`"
-
-
 args="-j$(nproc --all) O=out ARCH=arm64 SUBARCH=arm64 "
 
 print (){
@@ -40,36 +36,6 @@ case ${2} in
 	esac
 }
 
-echo
-echo
-echo "====================================="
-print "****开始编译内核***** version:$date" yellow
-echo "====================================="
-
-args+="LOCALVERSION=-$date "
-
-args+="CC=${clang_path}/clang \
-CLANG_TRIPLE=aarch64-linux-gnu- \
-LLVM_AR=${clang_path}/llvm-ar \
-LLVM_NM=${clang_path}/llvm-nm \
-OBJCOPY=${clang_path}/llvm-objcopy \
-OBJDUMP=${clang_path}/llvm-objdump \
-STRIP=${clang_path}/llvm-strip \
-CROSS_COMPILE=$gcc_path "
-
-#LD=${clang_path}/ld.lld \
-
-args+="CROSS_COMPILE_ARM32=$gcc_32_path "
-
-echo
-echo
-echo "====================================="
-print "参数： $args" blue
-echo "====================================="
-echo
-echo
-
-
 clean(){
 	rm -rf out
 	mkdir out
@@ -77,15 +43,12 @@ clean(){
 	make $args mrproper
 }
 
-sendMsg(){
-	curl  --data-urlencode title=内核编译通知  --data-urlencode content=$1  http://www.pushplus.plus/send?token=56c07b8902ab4e10a719140a513e0a1b&template=html
-}
 
 
-build_wayne_kernel(){
-	export KBUILD_BUILD_USER="Zahi"
-	export KBUILD_BUILD_HOST="Zahi-server"
-	make $args wayne_defconfig 
+build_kernel(){
+	export KBUILD_BUILD_USER="zahi0"  
+	export KBUILD_BUILD_HOST="zahi0-server"  
+	make $args wayne_defconfig #修改配置文件
 	if [ $? -ne 0 ]; then
       		exit 0
         fi
@@ -94,24 +57,44 @@ build_wayne_kernel(){
 	make $args
 	if [ $? -ne 0 ]; then
 		echo
-		echo
 		echo "====================================="
 		print "************编译失败!***************" red
 		echo "====================================="
-		sendMsg "编译失败"
+		
 	else 
-		echo
 		echo
 		echo "====================================="
 		print "************编译成功!***************" green
 		echo "====================================="
-		sendMsg "编译成功"
+	
         fi
         echo
 	echo     
 }
 
+
+echo
+echo "====================================="
+print "****开始编译内核***** version:$date" yellow
+echo "====================================="
+
+
+args+="CC=${clang_path}/clang \
+CLANG_TRIPLE=aarch64-linux-gnu- \
+LLVM_AR=${clang_path}/llvm-ar \
+LLVM_NM=${clang_path}/llvm-nm \
+OBJCOPY=${clang_path}/llvm-objcopy \
+OBJDUMP=${clang_path}/llvm-objdump \
+STRIP=${clang_path}/llvm-strip \
+CROSS_COMPILE=$gcc_path \
+LD=${clang_path}/ld.lld \
+CROSS_COMPILE_ARM32=$gcc_32_path \
+LOCALVERSION=-$date  "
+
+
+
+cd kernel_src
 clean
-build_wayne_kernel
+build_kernel
 cp ./out/arch/arm64/boot/Image.gz-dtb Image.gz-dtb
 cd ..

@@ -2,9 +2,6 @@ name: build_kernel
 
 on:
   workflow_dispatch:
-#   push:
-#     branches:
-#       - master
 
 jobs:
   build:
@@ -23,24 +20,24 @@ jobs:
       - name: pull kernel and complier
         run: |
           echo "拉取源码和编译器"
-          git clone --depth=1 https://github.com/Jasmine-Wayne-4-19/android_kernel_xiaomi_sdm660_4.19.git -b 11
-          mv android_kernel_xiaomi_sdm660_4.19 kernel_src
+          git clone --depth=1 https://github.com/Jasmine-Wayne-4-19/android_kernel_xiaomi_sdm660_4.19.git -b 11 kernel_src  #修改内核源码地址和分支名称
           echo "拉取源码完成"
-          mkdir complier
-          cd complier
           git clone --depth=1 https://github.com/kdrag0n/proton-clang -b master
           echo "拉取编译器完成"
-          cd ..
       - name: build kernel
         run: |
           echo "开始编译内核"
-          wget https://raw.githubusercontent.com/zahi0/build_kernel/main/build_tool.sh
+          wget https://raw.githubusercontent.com/zahi0/build_kernel/main/build_tool.sh  #修改为fork之后的地址
           chmod +x build_tool.sh
           ./build_tool.sh
-      - name : upload 
-        uses: actions/upload-artifact@master
-        if: always()
+      #- name : upload 
+      #  uses: actions/upload-artifact@master
+      #  if: always()
+      #  with:
+      #    name: kernel
+      #    path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: kernel
-          path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
+          files: ${{ github.workspace }}/kernel_src/Image.gz-dtb
 
