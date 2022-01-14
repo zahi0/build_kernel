@@ -30,14 +30,14 @@ jobs:
           wget https://raw.githubusercontent.com/zahi0/build_kernel/main/build_tool.sh  #修改为fork之后的地址
           chmod +x build_tool.sh
           ./build_tool.sh
-      #- name : upload 
-      #  uses: actions/upload-artifact@master
-      #  if: always()
-      #  with:
-      #    name: kernel
-      #    path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name : upload 
+        uses: actions/upload-artifact@master
+        if: always()
         with:
-          files: ${{ github.workspace }}/kernel_src/Image.gz-dtb
+          name: kernel
+          path: ${{ github.workspace }}/kernel_src/Image.gz-dtb
+#       - name: Release
+#         uses: softprops/action-gh-release@v1
+#         with:
+#           files: ${{ github.workspace }}/kernel_src/Image.gz-dtb
 
